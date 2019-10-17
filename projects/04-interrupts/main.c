@@ -46,11 +46,11 @@ int main(void)
     
 
     /* Set Timer0 */
-    TIM_config_prescaler(TIM0, TIM_PRESC_1);
+    TIM_config_prescaler(TIM0, TIM_PRESC_1024);
     TIM_config_interrupt(TIM0, TIM_OVERFLOW_ENABLE);
 
     /* Set Timer1 */
-    TIM_config_prescaler(TIM1, TIM_PRESC_8);
+    TIM_config_prescaler(TIM1, TIM_PRESC_1024);
     TIM_config_interrupt(TIM1, TIM_OVERFLOW_ENABLE);
     // TODO: Configure Timer1 clock source and enable overflow interrupt
 
@@ -69,7 +69,7 @@ int main(void)
  */
 ISR(TIMER0_OVF_vect)
 {
-    GPIO_toggle(&PORTB, LED_GREEN);
+    GPIO_toggle(&PORTB, LED_RED);
     // TODO: Toggle green LED
 }
 
@@ -77,7 +77,15 @@ ISR(TIMER0_OVF_vect)
  *  Brief: Timer/Counter1 overflow interrupt routine. Toggle red LED.
  */
 ISR(TIMER1_OVF_vect)
-{
-    GPIO_toggle(&PORTB, LED_RED);
-    // TODO: Toggle red LED
+{   
+    static uint8_t prodlouzeni = 0;
+
+    prodlouzeni++;    
+    
+    if(prodlouzeni==2)
+    {
+        GPIO_toggle(&PORTB, LED_GREEN);
+        prodlouzeni = 0;
+    }
+            // TODO: Toggle red LED
 }
