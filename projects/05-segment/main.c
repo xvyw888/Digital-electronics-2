@@ -38,6 +38,7 @@
  */
 int main(void)
 {
+    
     /* D1 led */
     // TODO: Configure D1 led at Multi-Function Shield*/
 
@@ -54,6 +55,10 @@ int main(void)
 
     /* 7-segment display interface */
     // TODO: Configure 7-segment display pins
+    
+    GPIO_config_output(&DDRB , SEGMENT_DATA );
+    GPIO_config_output(&DDRD , SEGMENT_CLK );
+    GPIO_config_output(&DDRD , SEGMENT_LATCH );
 
     /* Enable interrupts by setting the global interrupt mask */
     sei();
@@ -61,18 +66,35 @@ int main(void)
     /* Infinite loop */
     for (;;) {
         // TODO: Use function to display digit 1 at position 0
-        // SEG_putc(1, 0);
+        SEG_putc(1, 0);
     }
 
     return (0);
 }
 
 /**
- *  Brief: Pin Change Interrupt 11:9 routine. Toggle a LED.
- */
-/*ISR(???)*/
+ *  Brief: Pin Change Interrupt 11:9 routine. Toggle a LED.*/
+
 ISR(PCINT0_vect)
 {
-     GPIO_toggle(&PORTB, LED_D1);
+    uint8_t i=0;
+    GPIO_toggle(&PORTB, LED_D1);
     // TODO: Toggle a led
+    i++;
+    if(i == 10) 
+        {
+            i = 0;
+            
+        }
+}
+ISR(TIMER0_OVF_vect)
+{   
+    uint8_t c=0;
+    c++;
+
+    if(c == 4)
+    {
+        c = 0;
+    }
+    
 }

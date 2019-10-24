@@ -42,7 +42,12 @@ uint8_t segment_digit[] = {
     0b11000000,      // Digit 0
     0b11111001,      // Digit 1
     0b10100100,      // Digit 2
-    // TODO: Set segments for other digits
+    0b10111000,      // Digit 3
+    0b10011011,      // Digit 4
+    0b11010011,      // Digit 5
+    0b10000011,      // Digit 6
+    0b11111000,      // Digit 7
+    0b10000000,      // Digit 8
     0b10011000};     // Digit 9
 
 /* Active high position 0 to 3 */
@@ -57,6 +62,10 @@ void SEG_putc(uint8_t digit,
               uint8_t position)
 {
     uint8_t i;
+    uint8_t mask= 0b10000000;
+    uint8_t mask1= 0b10000000;
+    uint8_t num= 0b00000000;
+    uint8_t num1= 0b00000000;
 
     /* Read values from look-up tables */
     digit    = segment_digit[digit];
@@ -65,38 +74,51 @@ void SEG_putc(uint8_t digit,
     /* Put 1st byte to serial data */
     for (i = 0; i < 8; i++) 
         // TODO: Test and send 8 individual "digit" bits*/
-    {
-        uint8_t search |₌ _bv(7-i);
-
-        static uint8_t prod = 0;
-        for (segment_digit[7-prod]==1)
-        {   
-            segment_digit[7-prod] &= 1;
-            segment_digit[7-prod] >= 0;
-            prod++;
-
-        }
+    {   
+        num= digit & mask;
+        num= num >> (7-i);
+        mask= mask >> 1;
         
+        if (num > 0)
+        {
+            GPIO_write(&PORTB, SEGMENT_DATA,1);
+        }
         else 
         {
-            segment_digit[7-prod]=0;
-            prod++;
-
-        {
+            GPIO_write(&PORTB, SEGMENT_DATA,0);    
+        }
 
         SEG_toggle_clk();
     }
     /* Put 2nd byte to serial data */
-    for (i = 0; i < 8; i++) {
-        // TODO: Test and send 8 individual "position" bits
+    for (i = 0; i < 7; i++) 
+    {
+        num1= position & mask1;      
+        num1= num1 >> (7-i);
+        mask1= mask1 >> 1;
+        
+        if (num1 > 0)
+        {
+            GPIO_write(&PORTB, SEGMENT_DATA,1);
+        }
+        else 
+        {
+            GPIO_write(&PORTB, SEGMENT_DATA,0);    
+        }
         SEG_toggle_clk();
     }
+        
 
-    /* TODO: Generate 1 us latch pulse */
+    GPIO_write(&PORTD, SEGMENT_LATCH, 1);
+    _delay_us(1);
+    GPIO_write(&PORTD, SEGMENT_LATCH, 0); 
 }
 
 /*--------------------------------------------------------------------*/
+/* TODO: Generate 1 us latch pulse */
 void SEG_toggle_clk(void)
 {
-    /* TODO: Generate 2 us clock period */
+    GPIO_write(&PORTD, SEGMENT_CLK, 1);
+     _delay_us(1);
+    GPIO_write(&PORTD, SEGMENT_CLK, 0); 
 }
