@@ -56,9 +56,9 @@ int main(void)
     /* 7-segment display interface */
     // TODO: Configure 7-segment display pins
     
-    GPIO_config_output(&DDRB , SEGMENT_DATA );
-    GPIO_config_output(&DDRD , SEGMENT_CLK );
-    GPIO_config_output(&DDRD , SEGMENT_LATCH );
+    GPIO_config_output(&DDRB, SEGMENT_DATA);
+    GPIO_config_output(&DDRD, SEGMENT_CLK);
+    GPIO_config_output(&DDRD, SEGMENT_LATCH);
 
     /* Enable interrupts by setting the global interrupt mask */
     sei();
@@ -66,7 +66,7 @@ int main(void)
     /* Infinite loop */
     for (;;) {
         // TODO: Use function to display digit 1 at position 0
-        SEG_putc(1, 0);
+        SEG_putc(2, 4);
     }
 
     return (0);
