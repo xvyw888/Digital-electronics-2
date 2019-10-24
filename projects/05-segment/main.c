@@ -15,6 +15,7 @@
 
 /* Includes ----------------------------------------------------------*/
 #include <avr/io.h>
+#include <util/delay.h>
 #include "gpio.h"
 #include "timer.h"
 #include "segment.h"
@@ -26,6 +27,8 @@
 #define BTN_S1          PC1 // PCINT 9
 #define BTN_S2          PC2 // PCINT 10
 #define BTN_S3          PC3 // PCINT 11
+#define BLINK_DELAY     256
+
 
 /* Variables ---------------------------------------------------------*/
 /* Function prototypes -----------------------------------------------*/
@@ -38,7 +41,7 @@
  */
 int main(void)
 {
-    
+    uint8_t j=0;
     /* D1 led */
     // TODO: Configure D1 led at Multi-Function Shield*/
 
@@ -63,12 +66,15 @@ int main(void)
     /* Enable interrupts by setting the global interrupt mask */
     sei();
 
-    /* Infinite loop */
-    for (;;) {
-        // TODO: Use function to display digit 1 at position 0
-        SEG_putc(2, 4);
-    }
+    
+    for (j = 0; j < 10; j++) {
+        SEG_putc(j,0);
+        _delay_ms(BLINK_DELAY);
+        if (j==9){
+            j=0;
+        }
 
+    }
     return (0);
 }
 
@@ -81,19 +87,16 @@ ISR(PCINT0_vect)
     GPIO_toggle(&PORTB, LED_D1);
     // TODO: Toggle a led
     i++;
-    if(i == 10) 
-        {
+    if(i == 10) {
             i = 0;
-            
-        }
+         }
 }
 ISR(TIMER0_OVF_vect)
 {   
     uint8_t c=0;
     c++;
 
-    if(c == 4)
-    {
+    if(c == 4){
         c = 0;
     }
     
