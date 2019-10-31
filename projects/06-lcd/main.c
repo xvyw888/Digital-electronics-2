@@ -1,12 +1,14 @@
 /*
  * ---------------------------------------------------------------------
  * Author:      Tomas Fryza
+                Tomas Lorenc
+                Josef Holub
  *              Dept. of Radio Electronics, Brno Univ. of Technology
- * Created:     2018-10-16
- * Last update: 2019-10-25
- * Platform:    ATmega328P, 16 MHz, AVR 8-bit Toolchain 3.6.2
+ * Created:     2018-10-11
+ * Last update: 2019-10-16
+ * Platform:    ATmega328P, AVR 8-bit Toolchain 3.6.2
  * ---------------------------------------------------------------------
- * Description:
+* Description:
  *    Decimal counter with data output on LCD display.
  * 
  * Note:
@@ -25,10 +27,6 @@
 /* Typedef -----------------------------------------------------------*/
 /* Define ------------------------------------------------------------*/
 /* Variables ---------------------------------------------------------*/
-uint8_t value = 16;
-uint8_t value1 = 16;
-char lcd_string [3];
-
 /* Function prototypes -----------------------------------------------*/
 
 /* Functions ---------------------------------------------------------*/
@@ -37,6 +35,27 @@ char lcd_string [3];
  *  Input:  None
  *  Return: None
  */
+
+    uint8_t  value = 0;
+    char  lcd_string [8];
+
+     uint8_t  lcd_user_symbols [] = 
+    { 0x0E,
+    0x11,
+    0x1B,
+    0x11,
+    0x11,
+    0x1F,
+    0x11,
+    0x0E, 0x0E,
+  0x11,
+  0x1B,
+  0x11,
+  0x11,
+  0x15,
+  0x11,
+  0x0E};
+
 int main(void)
 {
     /* LCD display
@@ -46,53 +65,29 @@ int main(void)
     lcd_init(LCD_DISP_ON);
 
     // Display string without auto linefeed
-    //lcd_puts("WHAAAT");
-
-itoa ( value , lcd_string , 8) ;    
-lcd_puts("Counter:");
-lcd_gotoxy(10,0);
-lcd_puts ( lcd_string ) ;
-
-lcd_gotoxy(0,1);
-itoa ( value1 , lcd_string , 16) ;
-lcd_putc ( '$') ;
-lcd_puts ( lcd_string ) ;
-
-lcd_gotoxy(10,1);
-itoa ( value1 , lcd_string , 2) ;
-
-lcd_gotoxy(9,0);
-lcd_puts(" ");
-lcd_gotoxy(6,1);
-lcd_puts("0b");
-
-lcd_clrscr();
-
-uint8_t lcd_user_symbols [8*2] = {
-  0x00,0x00,0x0A,0x00,
-  0x11,0x0E,0x00,0x00 
-  };
-
-lcd_command (1 < < LCD_CGRAM ) ;
-for(uint8_t i=1; i < 16; i++]){
-
-}
-
-
-
-    
+    lcd_gotoxy(0,0);
+    lcd_puts("Counter: ");
+    lcd_gotoxy(0,1);
+    lcd_putc('$');
+    lcd_gotoxy(6,1);
+    lcd_puts("0b");
 
     // TODO: Display variable value in decimal, binary, and hexadecimal
 
-    TIM_config_prescaler(TIM1, TIM_PRESC_1);
+    //Timer1
+    TIM_config_prescaler(TIM1, TIM_PRESC_64);              //rychlost čítání
     TIM_config_interrupt(TIM1, TIM_OVERFLOW_ENABLE);
-    
-    /* Timer1
-     * TODO: Configure Timer1 clock source and enable overflow 
-     *       interrupt */
 
     /* TODO: Design at least two user characters and store them in 
      *       the display memory */
+     lcd_command(1<<LCD_CGRAM);                             //zobrazení znaku
+     for (uint8_t i = 0; i < sizeof(lcd_user_symbols); i++){
+         lcd_data(lcd_user_symbols[i]);
+     }
+     
+    lcd_gotoxy(14,0);               //vlastni symbol
+    lcd_putc(0x00);
+    lcd_putc(0x01);
 
     // Enables interrupts by setting the global interrupt mask
     sei();
@@ -108,10 +103,26 @@ for(uint8_t i=1; i < 16; i++]){
 /**
  *  Brief: Timer1 overflow interrupt routine. Increment counter value.
  */
-ISR(TIMER1_OVF_vect)
+ISR(TIMER1_OVF_vect)                            // vnoření po vyvolaní přerušení cca. kazdych 262ms
 {
- TIM_config_prescaler(TIM1, TIM_PRESC_1);
- TIM_config_interrupt(TIM1, TIM_OVERFLOW_ENABLE);
-
     // TODO: Increment counter value form 0 to 255
+    value++;
+
+    itoa(value , lcd_string , 16);
+    lcd_gotoxy(1,1);
+    lcd_puts("   ");
+    lcd_gotoxy(1,1);
+    lcd_puts(lcd_string);
+
+    itoa(value , lcd_string , 10);
+    lcd_gotoxy(9,0);
+    lcd_puts("   ");
+    lcd_gotoxy(9,0);
+    lcd_puts(lcd_string);
+
+    itoa(value , lcd_string , 2);
+    lcd_gotoxy(8,1);
+    lcd_puts("        ");
+    lcd_gotoxy(8,1);
+    lcd_puts(lcd_string);
 }
