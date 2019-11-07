@@ -47,7 +47,7 @@ int main(void)
     sei();
 
     // Display string without auto linefeed
-    lcd_puts("LCD testing");
+    lcd_puts("LCD testing     ");
     // Put string to ringbuffer for transmitting via UART.
     uart_puts("UART testing\r\n");
 
@@ -68,10 +68,24 @@ int main(void)
     TIM_config_interrupt(TIM1, TIM_OVERFLOW_ENABLE);
 
     // Infinite loop
-    for (;;) {
-    }
+    for (;;) 
+    {
+        uint8_t c;
 
-    // Will never reach this
+        c=uart_getc();
+        if (c !='\0') 
+        {        
+            if (c==0x0d) 
+            {
+                lcd_gotoxy(9,1);
+                lcd_clrscr();
+            }   
+            else 
+            {
+                lcd_putc(c);    
+            }
+        }
+     }
     return (0);
 }
 
@@ -96,23 +110,46 @@ ISR(ADC_vect)
      value = ADC;
 
     // TODO: Update LCD and UART transmiter
+    
     itoa(value, uart_string, 10);
-    uart_puts ( " \033[0 m " ) ;
-    uart_puts ( " \033[4;32 m " ) ;
-    lcd_puts (uart_string);
-    lcd_puts("  ");
-    uart_puts(uart_string);
-    uart_puts("  ");
+    //lcd_puts (uart_string);
+    //uart_puts(uart_string);
+    
+    
 
-    if (value >= 1010)
+    if (value <= 50)
     {
-        uart_puts("NORMAL");
-        lcd_puts("NORMAL");
+        uart_puts ("\033[4;36m");
+        uart_puts("Right\n\r");
+        uart_puts ("\033[0m");
+        lcd_puts("Right");
+        lcd_gotoxy(0,1);
     }
-    else
+    else if (value <= 150)
     {
-        uart_puts("value");
-        lcd_puts("value");
+        uart_puts("Up\n\r");
+        lcd_puts("Up");
+        lcd_gotoxy(0,1);
+    }
+     else if (value <= 250)
+    {
+        uart_puts("Down\n\r");
+        lcd_puts("Down");
+        lcd_gotoxy(0,1);
+    }
+
+    else if (value <= 450)
+    {
+        uart_puts("Left\n\r");
+        lcd_puts("Left");
+        lcd_gotoxy(0,1);
+    }
+    else if (value <= 700)
+    {
+        uart_puts("Select\n\r");
+        lcd_puts("Select");
+        lcd_gotoxy(0,1);
     }
 
 }
+
