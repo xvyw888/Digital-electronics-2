@@ -1,8 +1,6 @@
 /*
  * ---------------------------------------------------------------------
  * Author:      Tomas Fryza
-                Tomas Lorenc
-                Josef Holub
  *              Dept. of Radio Electronics, Brno Univ. of Technology
  * Created:     2018-10-11
  * Last update: 2019-10-16
