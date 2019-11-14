@@ -33,7 +33,7 @@ typedef enum {
 state_t current_state = IDLE_STATE;
 
 /* Function prototypes -----------------------------------------------*/
-void fsm_twi_scanner(void);
+void temp(void);
 
 /* Functions ---------------------------------------------------------*/
 /**
@@ -60,7 +60,7 @@ int main(void)
     sei();
 
     // Put strings to ringbuffer for transmitting via UART.
-    uart_puts("\r\n---TWI scanner---");
+    //uart_puts("\r\n---TWI scanner---");
 //    uart_puts("\r\n     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
 
     // Infinite loop
@@ -77,50 +77,37 @@ int main(void)
  */
 ISR(TIMER1_OVF_vect)
 {
-    fsm_twi_scanner();
+    temp();
 }
 
 /**
  *  Brief: Test one TWI address.
  */
-void fsm_twi_temp(void)
+
+void temp(void)
 {
-    static uint8_t addr = 0;
-    uint8_t temp;
+    uint8_t temp_cel;
+    uint8_t temp_des;
     char uart_string[3];
 
-    switch (current_state) {
-    case IDLE_STATE:
-        if twi_start(0x5c<<1) + TWI_WRITE 
-        {
-            itoa(addr, uart_string, 16);
-            uart_puts("\r\n");
-            uart_puts(uart_string);
-            current_state = TRY_STATE;
-        }
-        break;
-
-    // Transmit TWI slave temp and check temp
-    case TRY_STATE:
-        temp = twi_start((addr<<1) + TWI_WRITE);
+if (!twi_start((0x5c<<1) +TWI_WRITE))
+    {
+        twi_write(0x02);
         twi_stop();
-
-        if (temp == 0) {
-            current_state = ACK_STATE;
-        } else {
-            addr++;
-            current_state = IDLE_STATE;
+   
+    if (!twi_start((0x5c<<1)+TWI_READ))
+        {
+            temp_cel= twi_read_ack();
+            temp_des= twi_read_nack();
+            twi_stop();
+            itoa(temp_cel,uart_string,10);
+            uart_puts("                     \r");
+            uart_puts(uart_string);
+            uart_puts(",");
+            itoa(temp_des,uart_string,10);
+            uart_puts(uart_string);
+            uart_puts("°C");
         }
-        break;
-
-    // Slave ACK received
-    case ACK_STATE:
-        uart_puts(" OK");
-        addr++;
-        current_state = IDLE_STATE;
-        break;
-
-    default:
-        current_state = IDLE_STATE;
     }
+
 }
