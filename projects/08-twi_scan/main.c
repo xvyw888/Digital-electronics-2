@@ -45,10 +45,10 @@ void fsm_twi_scanner(void);
 int main(void)
 {
     // UART: asynchronous, 8-bit data, no parity, 1-bit stop
-    uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
+    uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));            // komunikace s UART
 
     // TWI
-    twi_init();
+    twi_init();                                                     //komunikace pro TWI
 
     /* Timer1
      * TODO: Configure Timer1 clock source and enable overflow 
@@ -56,10 +56,10 @@ int main(void)
     TIM_config_prescaler(TIM1, TIM_PRESC_8);              //rychlost čítání
     TIM_config_interrupt(TIM1, TIM_OVERFLOW_ENABLE);
 
-    // Enables interrupts by setting the global interrupt mask
+    // Enables interrupts by setting the global interrupt mask              //povoleni enable
     sei();
 
-    // Put strings to ringbuffer for transmitting via UART.
+    // Put strings to ringbuffer for transmitting via UART.             //vypsani hlavicky
     uart_puts("\r\n---TWI scanner---");
 //    uart_puts("\r\n     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
 
@@ -77,7 +77,7 @@ int main(void)
  */
 ISR(TIMER1_OVF_vect)
 {
-    fsm_twi_scanner();
+    fsm_twi_scanner();                          
 }
 
 /**
