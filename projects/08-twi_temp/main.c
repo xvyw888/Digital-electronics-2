@@ -83,7 +83,6 @@ ISR(TIMER1_OVF_vect)
 /**
  *  Brief: Test one TWI address.
  */
-
 void temp(void)
 {
     uint8_t temp_cel;
