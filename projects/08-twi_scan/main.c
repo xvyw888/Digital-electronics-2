@@ -1,3 +1,4 @@
+  
 /*
  * ---------------------------------------------------------------------
  * Author:      Tomas Fryza
@@ -68,14 +69,14 @@ int main(void)
     }
 
     // Will never reach this
-    return (0);
+    return (0);                             
 }
 
 /**
  *  Brief: Timer1 overflow interrupt routine. Update state of TWI Finite
  *         State Machine.
  */
-ISR(TIMER1_OVF_vect)
+ISR(TIMER1_OVF_vect)                                                        //volani funkce
 {
     fsm_twi_scanner();                          
 }
@@ -83,16 +84,16 @@ ISR(TIMER1_OVF_vect)
 /**
  *  Brief: Test one TWI address.
  */
-void fsm_twi_scanner(void)
+void fsm_twi_scanner(void)                                                  //telo fce
 {
     static uint8_t addr = 0;
     uint8_t status;
-    char uart_string[3];
+    char uart_string[3];                         //deklerace mist v poli
 
     switch (current_state) {
-    case IDLE_STATE:
-        if (addr < 128) {
-            itoa(addr, uart_string, 16);
+    case IDLE_STATE:    
+        if (addr < 128) {                       //smycka pro 128 registru
+            itoa(addr, uart_string, 16);        //prevod do srozumitelne formy hex
             uart_puts("\r\n");
             uart_puts(uart_string);
             current_state = TRY_STATE;
@@ -101,8 +102,8 @@ void fsm_twi_scanner(void)
 
     // Transmit TWI slave address and check status
     case TRY_STATE:
-        status = twi_start((addr<<1) + TWI_WRITE);
-        twi_stop();
+        status = twi_start((addr<<1) + TWI_WRITE);     //posunuti o bit doleva a zapis jednicky (write)
+        twi_stop();                                    //twi komunikace je definovana instrukcema a jednou z podminky je po SLAVE stopka
 
         if (status == 0) {
             current_state = ACK_STATE;
@@ -119,7 +120,7 @@ void fsm_twi_scanner(void)
         current_state = IDLE_STATE;
         break;
 
-    default:
+    default:                                        //pri vyuziti SWITCH-CASE by se melo vyuzit default, pro pripad nevyhovujici podminky
         current_state = IDLE_STATE;
     }
 }
