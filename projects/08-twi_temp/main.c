@@ -75,7 +75,7 @@ int main(void)
  *  Brief: Timer1 overflow interrupt routine. Update state of TWI Finite
  *         State Machine.
  */
-ISR(TIMER1_OVF_vect)
+ISR(TIMER1_OVF_vect)                                //volani funkce
 {
     temp();
 }
@@ -83,27 +83,27 @@ ISR(TIMER1_OVF_vect)
 /**
  *  Brief: Test one TWI address.
  */
-void temp(void)
+void temp(void)                                     //telo funkce, ktera nic nevraci 
 {
-    uint8_t temp_cel;
+    uint8_t temp_cel;                               //deklerace promennych
     uint8_t temp_des;
-    char uart_string[3];
+    char uart_string[3];                            
 
-if (!twi_start((0x5c<<1) +TWI_WRITE))
-    {
-        twi_write(0x02);
+if (!twi_start((0x5c<<1) +TWI_WRITE))               //fungovalo by to i bez negace a if, ale takhle mame pojistene nechtene spusteni
+    {                                               //podle stuktury komunikace TWI zavolame fci START a do registru pro urcite cidlo, zapiseme bit pro cteni
+        twi_write(0x02);                            //chceme pouze cist teplotu, zjisteno v Datasheet
         twi_stop();
    
-    if (!twi_start((0x5c<<1)+TWI_READ))
+    if (!twi_start((0x5c<<1)+TWI_READ))             //zde jdeme cist data z cidla
         {
-            temp_cel= twi_read_ack();
-            temp_des= twi_read_nack();
-            twi_stop();
+            temp_cel= twi_read_ack();               // twi read ack je cislo MSB dulezitejsi, vetsinou to co neni za des. tec.
+            temp_des= twi_read_nack();              //cislo za des. teckou
+            twi_stop();                             //ukonceni komunikace podle protokolu TWI
             itoa(temp_cel,uart_string,10);
-            uart_puts("                     \r");
+            uart_puts("                     \r");      // formalni zapis cisla a UART zobrazeni
             uart_puts(uart_string);
             uart_puts(",");
-            itoa(temp_des,uart_string,10);
+            itoa(temp_des,uart_string,10);          //vyuziti fce itoa pro prevod do citelnejsi formy pro AVRko tz. on nevi co je hodnota 25,6 z cidla, my mu to musime pres itoa dat touhle formou
             uart_puts(uart_string);
             uart_puts("°C");
         }
